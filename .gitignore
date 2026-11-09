@@ -1,0 +1,19 @@
+config/local.php
+public/uploads/*
+!public/uploads/.gitkeep
+!public/uploads/.htaccess
+.DS_Store
+
+# Sensitive and private files
+.env
+.env.*
+!.env.example
+private_docs/
+*.log
+
+# Sensitive and private files
+.env
+.env.*
+!.env.example
+private_docs/
+*.log

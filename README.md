@@ -1,430 +1,166 @@
+# FoodRescue Bangladesh (PHP + MySQL)
 
-
-# 🍲 FoodRescue Bangladesh
-
-**A web platform that connects surplus food with the people who need it, across Bangladesh.**
-
-
-## 📖 Table of Contents
-
-- [About the Project](#-about-the-project)
-- [Key Features](#-key-features)
-- [User Roles](#-user-roles)
-- [Tech Stack](#-tech-stack)
-- [Project Structure](#-project-structure)
-- [Getting Started](#-getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation (XAMPP)](#installation-xampp)
-  - [Load Demo Data](#load-demo-data)
-  - [Demo Accounts](#demo-accounts)
-- [Configuration](#-configuration)
-- [Upgrading an Existing Database](#-upgrading-an-existing-database)
-- [Creating an Admin Account Manually](#-creating-an-admin-account-manually)
-- [Running the Tests](#-running-the-tests)
-- [Manual Test Checklist](#-manual-test-checklist)
-- [Security Notes](#-security-notes)
-- [Deployment Notes](#-deployment-notes)
-- [Troubleshooting](#-troubleshooting)
-- [Known Limitations](#-known-limitations)
-- [Contributing](#-contributing)
-- [License](#-license)
-
----
-
-## 🌍 About the Project
-
-Every day, restaurants, wedding halls and event venues in Bangladesh end up with good surplus food, while many families go without meals. **FoodRescue Bangladesh** is a PHP + MySQL platform that lets donors list surplus food, lets verified NGOs request it, and lets volunteers pick it up and deliver it, with food-safety review, admin verification and full tracking along the way.
-
-The project follows the **FoodRescue SRS v2.0** and is localized for Bangladesh (BDT currency, `Asia/Dhaka` timezone, local phone/address fields, English/Bangla display toggle).
-
-> ⚠️ This is a runnable **academic foundation**, not a production-certified food-safety or logistics system. See [Known Limitations](#-known-limitations).
-
----
-
-## ✨ Key Features
-
-**Food listing and safety**
-- Surplus food listings with a food-safety checklist and safe-pickup deadline
-- Event-specific fields (event name, type, date) for weddings, conferences, parties and community events
-- Admin food-safety review queue: listings stay hidden until approved
-- Smart listing priority: declared priority score plus an urgency boost as the pickup deadline approaches
-- Built-in category illustrations plus optional real photo uploads
-
-**Demand and matching**
-- Demand reports with area, district, upazila/thana, ward, people count, meal count and urgency
-- Admin validation of demand reports before they appear on the map
-- Area map showing safety-approved food and verified unmet demand (approximate area centres, never home coordinates)
-
-**Donation workflow**
-- NGOs request food; acceptance is transactional and reserves the food atomically
+A runnable academic starter project aligned with the FoodRescue SRS v2.0:
+- Roles: Admin, Restaurant, Event Organizer, NGO, Demand Reporter, Volunteer
+- Bangladesh localization (BDT, Asia/Dhaka, phone/address fields)
+- Surplus food listings and food-safety checklist, including event-specific name/type/date fields for wedding, conference, party and community-event donations
+- Demand requests and area-wise unmet demand
+- Donation requests, volunteer pickup/delivery updates, beneficiary distribution records
+- Admin verification, food safety review queue, demand validation, audit logs, basic fraud flags, dashboard reporting
 - Volunteer opportunity board with safe concurrent claiming of unassigned deliveries
-- Delivery status tracking: Picked up → In transit → Delivered → Completed, with status history
-- One-time browser GPS capture and OpenStreetMap links for delivery updates
-- Beneficiary distribution records
-- Printable donation appreciation certificates (Print / Save as PDF)
-
-**Administration and trust**
-- Verification of users using uploaded documents (stored privately, admin-only access)
-- User management: search, verify, reject, suspend, reactivate, reset password
-- Audit logs, complaint handling and basic fraud flags
-- Dashboard and report export
-- In-app notifications inbox with automatic alerts to verified partners when new food is listed
-
-**UI**
-- Responsive, image-led design (5 → 4 → 3 → 2 → 1 column card grid)
-- English/Bangla display toggle, dark mode, and an optional Banglish typing helper
-
----
-
-## 👥 User Roles
-
-| Role | What they do |
-|------|--------------|
-| **Admin** | Verifies users, reviews food safety, validates demand, handles complaints, views logs and reports |
-| **Restaurant** | Posts surplus food, edits or cancels listings, tracks donations |
-| **Event Organizer** | Posts event leftovers (weddings, conferences, parties) |
-| **NGO** | Requests food, reports demand, records distributions |
-| **Demand Reporter** | Submits area-wise demand reports |
-| **Volunteer** | Claims pickups, updates delivery status |
-
----
-
-## 🛠 Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Backend | PHP 8.1+ (8.2 recommended), PDO prepared statements |
-| Database | MySQL 8+ or MariaDB 10.5+ (`utf8mb4`) |
-| Web server | Apache (XAMPP for local use) or Nginx |
-| Frontend | HTML, CSS, vanilla JavaScript |
-| Security | Password hashing, CSRF tokens, session role checks, login rate limiting |
-
----
-
-## 📂 Project Structure
-
-```
-FoodRescue_Bangladesh/
-├── app/                  # Core: db connection, helpers, shared layout
-├── config/
-│   └── config.php        # App + database configuration
-├── database/
-│   ├── schema.sql        # Full schema for a fresh install
-│   └── migrate_*.sql     # One-time upgrades for older databases
-├── public/               # Web root (all pages, assets, uploads)
-│   ├── assets/           # CSS, JS, hero image, demo food photos, category SVGs
-│   ├── uploads/          # Food photos (script execution blocked)
-│   ├── demo.html         # Interactive demo with simulated actions
-│   └── *.php             # Application pages
-├── private_docs/         # Verification documents (never served directly)
-├── scripts/
-│   └── seed_demo.php     # CLI demo-data seeder
-├── tests/
-│   ├── static_checks.php       # Database-independent checks
-│   ├── check_environment.php   # PHP/MySQL/schema verification
-│   └── run_checks.sh           # Runs all checks
-└── START_HERE_BANGLA.txt # Quick-start guide in Bangla
-```
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- **PHP 8.1+** with the `pdo_mysql` extension enabled
-- **MySQL 8+ / MariaDB 10.5+**
-- **Apache** (the easiest option is [XAMPP](https://www.apachefriends.org/), which bundles all three)
-- A modern browser (location permission is needed only for GPS capture)
-
-### Installation (XAMPP)
-
-**1. Clone the repository**
-
-```bash
-git clone https://github.com/<your-username>/FoodRescue_Bangladesh.git
-```
-
-Place the folder inside your web root:
-
-| OS | Location |
-|----|----------|
-| Windows | `C:\xampp\htdocs\FoodRescue_Bangladesh` |
-| macOS / Linux | `/opt/lampp/htdocs/FoodRescue_Bangladesh` (or your web root) |
-
-**2. Start the services**
-
-Open the XAMPP Control Panel and start **Apache** and **MySQL**.
-
-**3. Create the database**
-
-1. Open phpMyAdmin: <http://localhost/phpmyadmin/>
-2. Go to the **Import** tab, choose `database/schema.sql`, and click **Go**.
-
-This creates the `foodrescue_bd` database and all tables. Alternatively, from the command line:
-
-```bash
-mysql -u root -p < database/schema.sql
-```
-
-> A fresh install needs only `schema.sql`. Do **not** run the `migrate_*.sql` files on a new database.
-
-**4. Check the configuration**
-
-The defaults in `config/config.php` match a standard XAMPP setup:
-
-| Setting | Default |
-|---------|---------|
-| Host | `127.0.0.1` |
-| Database | `foodrescue_bd` |
-| User | `root` |
-| Password | *(empty)* |
-
-If your MySQL settings differ, see [Configuration](#-configuration).
-
-**5. Open the app**
-
-```
-http://localhost/FoodRescue_Bangladesh/public/
-```
-
-`BASE_URL` is auto-detected, so the project works from any folder name.
-
-You can also try the interactive sample demo (actions are simulated, no database needed):
-
-```
-http://localhost/FoodRescue_Bangladesh/public/demo.html
-```
-
-### Load Demo Data
-
-Without seed data there are no login accounts and the food search will be empty. Load the demo data **once** (local development only).
-
-**Option A: command line (recommended)**
-
-Open the XAMPP Shell (or any terminal), go to the project root (the folder that contains `app`, `public` and `scripts`) and run:
-
-```bash
-cd /path/to/FoodRescue_Bangladesh
-php scripts/seed_demo.php
-```
-
-On Windows with XAMPP:
-
-```bat
-cd /d C:\xampp\htdocs\FoodRescue_Bangladesh
-C:\xampp\php\php.exe scripts\seed_demo.php
-```
-
-**Option B: browser (localhost only)**
-
-Open `http://localhost/FoodRescue_Bangladesh/public/setup_demo.php`, tick the confirmation box, and click **Create / Refresh Demo Data**.
-
-The seeder creates:
-
-- Verified demo users for every role
-- 12 Dhaka-style sample food listings with photos
-- Safety-review records and verified demand areas
-- One completed demo donation with a distribution record
-
-It is safe to re-run for the named demo listings. Then refresh `public/login.php` and open **Local demo accounts** (shown on localhost only).
-
-> 🔎 Try searching `Biryani` or `Dhanmondi` on the **Available Food** page, and open the **Area Map** to see the markers.
-
-### Demo Accounts
-
-All demo accounts use the password **`Demo@12345`**.
-
-| Role | Email |
-|------|-------|
-| Admin | `admin@foodrescue.local` |
-| Restaurant | `restaurant@foodrescue.local` |
-| Event Organizer | `event@foodrescue.local` |
-| NGO | `ngo@foodrescue.local` |
-| Demand Reporter | `reporter@foodrescue.local` |
-| Volunteer | `volunteer@foodrescue.local` |
-
-> ⚠️ Demo data is fictional. **Never** seed demo accounts or use these passwords on a live or public server.
-
----
-
-## ⚙️ Configuration
-
-Database settings are read from environment variables, falling back to XAMPP defaults.
-
-| Variable | Purpose | Default |
-|----------|---------|---------|
-| `FOODRESCUE_DB_HOST` | Database host | `127.0.0.1` |
-| `FOODRESCUE_DB_NAME` | Database name | `foodrescue_bd` |
-| `FOODRESCUE_DB_USER` | Database user | `root` |
-| `FOODRESCUE_DB_PASS` | Database password | *(empty)* |
-| `FOODRESCUE_FORCE_SECURE_COOKIE` | Set to `true` to force secure cookies (behind HTTPS proxies) | *(unset)* |
-
-Example (Linux/macOS):
-
-```bash
-export FOODRESCUE_DB_HOST=127.0.0.1
-export FOODRESCUE_DB_NAME=foodrescue_bd
-export FOODRESCUE_DB_USER=foodrescue_app
-export FOODRESCUE_DB_PASS='a-strong-password'
-```
-
-Other constants in `config/config.php`: timezone `Asia/Dhaka`, maximum upload size 3 MB.
-
----
-
-## 🔄 Upgrading an Existing Database
-
-If you already have a `foodrescue_bd` database from an older version, **do not re-import `schema.sql`** (it would recreate tables). Instead, select the database in phpMyAdmin and import only the migrations you have not applied yet, **once each**:
-
-| File | Adds |
-|------|------|
-| `database/migrate_event_organizer.sql` | Event Organizer role and event fields |
-| `database/migrate_area_demand.sql` | District / upazila / ward on demand reports |
-| `database/migrate_security.sql` | `login_attempts` table for login throttling |
-| `database/migrate_food_photo.sql` | Optional food photo column |
-| `database/migrate_admin_tools.sql` | Verification document column |
-
----
-
-## 🔑 Creating an Admin Account Manually
-
-If you are not using the demo seeder, create an admin yourself.
-
-**1. Generate a password hash**
-
+- In-app notifications inbox with automatic alerts to verified rescue partners when new food is listed
+- Smart listing priority: declared priority score plus urgency boost as the safe pickup deadline approaches
+- Browser-permission-based one-time GPS capture for delivery updates and OpenStreetMap links for saved coordinates
+- Printable donation appreciation certificates (Print / Save as PDF) for delivered/completed donations
+- Homepage hero image and responsive image-led design
+- PDO prepared statements, password hashing, CSRF tokens, session role checks
+
+## Realistic demo food listings and photos (2026-10-27)
+- The CLI-only demo seeder now creates 12 Dhaka-style sample food listings with local image assets under `public/assets/demo-food/`, plus one completed demo donation for dashboard/report demonstrations.
+- Re-running the seeder is safe for the named demo listings: it adds missing records and assigns a demo photo to existing matching records when their photo is empty.
+- Demo photos and quantities are illustrative. They are not evidence that a real donation exists or that food is safe; verify safety and expiry for every real listing.
+- Run from the project root with `php scripts/seed_demo.php` after importing `database/schema.sql` and required migrations. The script intentionally refuses web requests.
+
+
+## Screenshot-matched homepage update (2026-10-27)
+- Rebuilt the homepage to closely follow the provided FoodRescue reference: green-and-white branding, wide hero banner, food category strip, searchable area control, five-column desktop food cards, availability labels, quantity/pickup/expiry details, and impact footer.
+- Includes 12 local sample food-photo assets. Sample cards are marked DEMO and link to the live food listing; they are not treated as real donations or inserted into the database.
+- When database-approved live listings exist, they are shown first; sample cards fill the grid to keep the homepage useful for previews.
+- Added homepage English/Bangla display toggle, dark-mode toggle, and retained the Banglish typing toggle inside the account menu.
+- Responsive layout adapts to tablet and mobile screens.
+
+
+## Local XAMPP quick start when login accounts / food search appear empty
+1. Start Apache and MySQL, and import `database/schema.sql` into phpMyAdmin (only for a fresh database). Configure `config/config.php` if your MySQL settings differ.
+2. Open XAMPP Shell, `cd` to the project root folder (the folder containing `scripts`, `public`, and `app`), then run `php scripts/seed_demo.php` once. It creates local demo users, 12 sample food listings, safety-review records, and demand samples. Safe to re-run for the named demo listings.
+3. Refresh `public/login.php`. On localhost only, open “Local demo accounts”. All demo accounts use password `Demo@12345`.
+4. Search `public/food.php` by a sample food name such as `Biryani` or area such as `Dhanmondi`; the area map will show approximate markers after seed data exists.
+
+Demo emails: `admin@foodrescue.local`, `restaurant@foodrescue.local`, `event@foodrescue.local`, `ngo@foodrescue.local`, `reporter@foodrescue.local`, `volunteer@foodrescue.local`. Demo data is fictional/illustrative and should not be used as live food-safety evidence.
+
+## Latest audit fixes (2026-10-27)
+- Removed a hidden dependency on the optional PHP `mbstring` extension from form validation. Unicode-aware `text_length()` uses `mb_strlen()` when available and a UTF-8 regex fallback otherwise, so Bengali names/descriptions can still be validated on minimal PHP setups.
+- Added regression checks for Bengali character counting, Banglish typing/toggle presence, and the UTF-8 database connection setting.
+- Banglish typing is a convenience dictionary/phonetic helper, not a full transliteration engine; use the toggle to keep English text unchanged.
+
+## Latest updates
+- Config: `BASE_URL` is auto-detected, so the project works from any XAMPP folder name.
+- Logout is now POST + CSRF protected; login is rate limited (5 failures / 15 min per email+IP).
+- Suspended or deactivated accounts are logged out immediately (session user re-checked every request).
+- New pages: `profile.php` (edit profile, change password), `complaints.php` (users report problems, admin reviews), `my_food.php` (donors track and cancel their listings).
+- New table `login_attempts` (in `schema.sql`). For an existing database run `database/migrate_security.sql` once.
+- `scripts/seed_demo.php` creates local development demo accounts for every role (password `Demo@12345`). It is CLI-only and must never be run on a live site.
+- Food images: each category has a built-in illustration (`public/assets/food/*.svg`); donors can also upload a real photo when posting food (shown on cards instead of the illustration). For an existing database run `database/migrate_food_photo.sql` once.
+- `scripts/seed_demo.php` also adds sample food listings, a pending review item, verified demand areas and one completed donation with distribution. Run it only from the project root with `php scripts/seed_demo.php`.
+- Admin tools: `admin_users.php` (search/filter all users, verify, reject, suspend, reactivate, reset a password), `admin_logs.php` (audit log), `admin_document.php` (admin-only viewer for verification documents).
+- Registration now requires a verification document. Files are saved in `private_docs/` (outside `public/`, protected by `.htaccess`) and can only be opened by admins. For an existing database run `database/migrate_admin_tools.sql` once.
+- Donors can edit available listings (`food_edit.php`); edits return the listing to the admin safety queue. NGOs/reporters get `my_demand.php` to edit pending reports (`demand_edit.php`) or cancel reports.
+- Forgot password: admins can generate a temporary password from the Users page (there is still no email reset because no mail server is configured).
+
+## Requirements
+- PHP 8.1+ (8.2 recommended)
+- MySQL 8+ or MariaDB 10.5+
+- Apache/Nginx (XAMPP is fine for local academic use)
+
+## Setup (XAMPP)
+1. Extract `FoodRescue_Bangladesh.zip` into `C:\xampp\htdocs\FoodRescue_Bangladesh` (Windows) or your web root.
+2. Start Apache and MySQL from XAMPP.
+3. Open phpMyAdmin and import `database/schema.sql`.
+4. For local XAMPP, the defaults in `config/config.php` are `127.0.0.1`, database `foodrescue_bd`, user `root`, empty password. For production, set `FOODRESCUE_DB_HOST`, `FOODRESCUE_DB_NAME`, `FOODRESCUE_DB_USER`, and `FOODRESCUE_DB_PASS` environment variables and use a dedicated database user.
+   If you already have an older database, import `database/migrate_event_organizer.sql` once instead of re-importing the schema (which would recreate tables).
+5. Visit `http://localhost/FoodRescue_Bangladesh/public/`.
+6. Open `http://localhost/FoodRescue_Bangladesh/public/demo.html` for an interactive sample-data demo (actions are simulated).
+7. GPS capture requires browser location permission; on localhost it normally works in modern browsers. OpenStreetMap links require internet access.
+8. Open a completed donation certificate from the Certificates navigation and use Print / Save as PDF.
+9. Register a user. New registrations are pending verification. For local demo, seed the admin account with the SQL below.
+
+## Create an admin account
+Generate a password hash locally with PHP:
 ```bash
 php -r "echo password_hash('ChangeThisAdmin123!', PASSWORD_DEFAULT), PHP_EOL;"
 ```
-
-**2. Insert the admin** (replace `PASTE_HASH_HERE`, then run in phpMyAdmin → SQL):
-
+Copy the generated hash and replace `PASTE_HASH_HERE` in the following SQL, then execute it in phpMyAdmin:
 ```sql
-USE foodrescue_bd;
-INSERT INTO users (name, email, phone, password_hash, role, address, verification_status, is_active)
-VALUES ('System Admin', 'admin@foodrescue.local', '01700000000',
-        'PASTE_HASH_HERE', 'admin', 'Dhaka', 'verified', 1);
+INSERT INTO users (name,email,phone,password_hash,role,verification_status,is_active)
+VALUES ('System Admin','admin@foodrescue.local','01700000000','PASTE_HASH_HERE','admin','verified',1);
 ```
+Log in with `admin@foodrescue.local` and the password you chose above.
 
-**3. Log in** at `/public/login.php` with that email and the password you chose.
+## Validation status (updated)
+- All PHP files passed `php -l` syntax validation after the latest fixes.
+- Donation acceptance now locks and rechecks the request/food in a transaction, reserves the food atomically, closes other pending requests for the same listing, and notifies affected requesters.
+- Delivery status changes now use a transaction, re-check the assigned volunteer/current status, record status history, synchronize donation/food status, and notify the donor and recipient.
+- Distribution entry is limited to delivered/completed donations and the selector hides donations that already have a distribution record, reducing duplicate records.
+- MySQL-backed end-to-end testing has not been run in this environment because the PHP MySQL PDO driver and a local MySQL server are unavailable here. Run the manual test checklist below in XAMPP before relying on the app.
 
-> New registrations start as **pending** and must be verified by an admin. Registration requires uploading a verification document.
+## Manual test checklist
+1. Register one account for each role and verify accounts through Admin.
+2. Post food as Restaurant and Event Organizer; confirm it remains hidden until safety review passes.
+3. Submit requests from two verified NGOs for one listing; accept one and confirm the other becomes rejected with a notification.
+4. Have a verified volunteer claim the delivery; try claiming with a second account and confirm it is unavailable.
+5. Progress delivery through Picked up → In transit → Delivered → Completed and verify status history/notifications.
+6. Record one distribution for a completed donation and confirm it no longer appears in the eligible selector.
+7. Test invalid CSRF, unauthorized role access, expired deadlines, bad uploads, and mobile layout.
 
----
+## Important implementation notes
+- This is a runnable academic foundation, not a production-certified food-safety or logistics system.
+- GPS uses browser geolocation only after the volunteer clicks the location button and grants permission; this is a one-time coordinate capture, not continuous live tracking. OpenStreetMap is linked for saved points. Internet access is required for map links.
+- Certificates are printable HTML pages; use the browser Print → Save as PDF function. They are not digitally signed or independently verified.
+- Area map and smart-match pages are available in the live app. The map uses approximate area-centre coordinates inferred from pickup address text; it does not provide exact geocoding or road-distance routing.
+- Automated in-app notification triggers currently include new food listing alerts and existing donation-request status updates. SMS/email/push notifications are not configured. Smart matching currently prioritizes declared food priority and deadline urgency, with area filtering; it is not an AI optimizer and does not yet calculate real road distance/capacity.
+- Food photos are stored under `public/uploads/` with an Apache rule denying script execution. Verification documents are stored outside the public web root in `private_docs/`. For Nginx or other servers, configure equivalent upload restrictions.
+- Configure HTTPS, backups, least-privilege DB credentials, rate limiting, and server-side monitoring before any public deployment.
+- Change default sample values and credentials. Never commit secrets to public repositories.
 
-## 🧪 Running the Tests
+## Automated checks and local database verification
 
-From the project root:
+From the project root, run:
 
 ```bash
-# 1. Database-independent source checks
 php tests/static_checks.php
-
-# 2. Environment check (needs MySQL running and schema.sql imported)
-php tests/check_environment.php
-
-# 3. Run everything: PHP syntax lint + both checks
-sh tests/run_checks.sh
 ```
 
-`check_environment.php` confirms that `pdo_mysql` is enabled, the app can connect to MySQL, and the core tables and columns exist. It does not create test users or modify data.
+This runs database-independent source checks. For a complete environment/schema check after Apache and MySQL are running and `database/schema.sql` has been imported, run:
 
----
+```bash
+php tests/check_environment.php
+```
 
-## ✅ Manual Test Checklist
+The environment check confirms that `pdo_mysql` is enabled, the app can connect to MySQL, and the core tables/columns exist. It does not create test users or mutate live data. For an existing installation, run the relevant SQL migration in `database/` before checking.
 
-Automated checks do not cover the full workflow. After setup, verify these in a browser:
+Recent hardening includes rechecking food safety approval inside the request-acceptance transaction and locking the donation request before creating a distribution record, with a duplicate-record guard and an in-app notification.
 
-1. Register one account per role and verify them through the Admin panel.
-2. Post food as Restaurant and as Event Organizer, and confirm it stays hidden until the safety review passes.
-3. Submit requests from two verified NGOs for one listing, accept one, and confirm the other is rejected with a notification.
-4. Claim the delivery with a verified volunteer, then try a second volunteer account and confirm it is unavailable.
-5. Progress the delivery: Picked up → In transit → Delivered → Completed, and check status history and notifications.
-6. Record a distribution for the completed donation and confirm it no longer appears in the eligible selector.
-7. Test invalid CSRF tokens, unauthorized role access, expired deadlines, bad uploads and the mobile layout.
+**Test limitation:** The development container used to package this project has no PDO drivers enabled, so the MySQL integration check cannot pass here. Run the environment check in your local XAMPP/PHP installation to verify the real database connection.
 
----
+## Area-wise demand verification (new)
 
-## 🔒 Security Notes
+- Demand Reporter/NGO/Admin can submit a demand report with area, district, upazila/thana, optional ward, people count, meal count, needed-by time, urgency and notes.
+- New reports remain `pending` and are not included in the demand map or verified area-gap summary until an admin validates them.
+- When a report is validated, the reporter and verified NGOs receive in-app notifications.
+- The area map shows safety-approved food and separately marks verified, still-active unmet demand. Demand markers use approximate area centres, never beneficiary home coordinates.
+- Fresh database: import `database/schema.sql`. Existing database: import `database/migrate_area_demand.sql` once in phpMyAdmin after selecting the `foodrescue_bd` database. If you have not yet applied the Event Organizer migration, also run `database/migrate_event_organizer.sql` once.
+- Run `php tests/static_checks.php` for database-independent checks. Live MySQL integration still needs testing in XAMPP.
 
-- SQL access uses **PDO prepared statements**; passwords use `password_hash()`.
-- **CSRF tokens** protect forms, and logout is POST + CSRF protected.
-- Login is **rate limited** (5 failures per 15 minutes per email + IP).
-- Suspended or deactivated users are logged out on the next request.
-- Verification documents live in `private_docs/` (outside `public/`) and can only be opened by admins.
-- `public/uploads/.htaccess` blocks script execution in the upload folder. **On Nginx or other servers, configure an equivalent rule.**
-- Security headers are set (`X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy`).
-- `scripts/seed_demo.php` and `public/setup_demo.php` are **for local development only**. Remove or block them on any public host.
-- Never commit secrets or real credentials. `config/local.php` and uploaded files are already in `.gitignore`.
 
----
+## Security and deployment notes
 
-## 🌐 Deployment Notes
+- `scripts/seed_demo.php` is outside the public web root and restricted to CLI execution. Use it only in a local development environment; never seed demo accounts on a live site.
+- Uploaded files are protected by `public/uploads/.htaccess` on Apache. If deploying on Nginx or another server, configure the equivalent rule to prevent script execution in uploads.
+- Database settings may be supplied with `FOODRESCUE_DB_HOST`, `FOODRESCUE_DB_NAME`, `FOODRESCUE_DB_USER`, and `FOODRESCUE_DB_PASS` environment variables. Local defaults are retained for XAMPP. Set a dedicated database user and strong password in production.
+- Login throttling depends on the `login_attempts` table in `database/schema.sql`; apply the schema/migrations before enabling public registration and login.
+- Database outages invalidate the current session instead of allowing a cached user identity to continue.
 
-Before any public deployment:
 
-- Enforce **HTTPS** (and set `FOODRESCUE_FORCE_SECURE_COOKIE=true` if behind a proxy)
-- Use a **dedicated, least-privilege** database user with a strong password
-- Delete `public/setup_demo.php`, `public/demo.html` (optional) and do not run the seeder
-- Set up backups and server-side monitoring
-- Make sure `public/uploads/` and `private_docs/` are writable by the web server user, and that script execution is blocked in uploads
-- Configure email/SMS if you need password-reset delivery (not included)
+## Homepage marketplace refresh
+- The home page now includes a bilingual food-category strip and 12 photo-rich Bangladesh-style demo food cards with sample category, quantity, Dhaka pickup location, status, and pickup-window details.
+- Demo listings are clearly labelled as illustrative sample data; they are not inserted into the live marketplace automatically and are not real donation offers. The separate CLI demo seeder can populate sample database rows for local development.
+- The home-page listing layout adapts from 5 columns on wide screens to 4/3/2/1 columns on smaller screens.
+- Validation: PHP syntax and database-independent static checks pass. MySQL-backed integration checks require the `pdo_mysql` extension and a configured test database and were not run in this environment.
 
----
+## New advanced modules
+The project now includes NGO inventory, food-waste analytics, emergency campaigns, donor–NGO feedback, GPS route planning, and beneficiary needs/history. Before using them, back up `foodrescue_bd` and run `database/migrate_six_new_modules.sql`. Read `docs/SIX_ADVANCED_MODULES_SETUP_BN.md` for Bengali setup and test instructions. Route ordering uses recorded GPS coordinates and is not traffic-aware navigation.
 
-## 🩹 Troubleshooting
 
-| Problem | Fix |
-|---------|-----|
-| `could not find driver` / `pdo_mysql` not enabled | Enable `extension=pdo_mysql` in `php.ini` and restart Apache |
-| Database connection error | Check MySQL is running and the credentials in `config/config.php` or the `FOODRESCUE_DB_*` variables |
-| Missing table errors | Import `database/schema.sql` (fresh DB) or the needed `migrate_*.sql` (older DB) |
-| Login page shows no demo accounts | Run `php scripts/seed_demo.php`. The list appears on localhost only |
-| `php` command not found on Windows | Use the full path: `C:\xampp\php\php.exe` |
-| Seeder says "Not found" in browser | The seeder is CLI-first; use the terminal, or `setup_demo.php` on localhost |
-| Photo upload fails | Check file size (max 3 MB) and write permission on `public/uploads/` |
-| Bengali text counts incorrectly | The app works without `mbstring` (it has a UTF-8 fallback); enabling `mbstring` is still recommended |
-| Map links do not open | OpenStreetMap links need an internet connection |
-| GPS button does nothing | Allow location permission in your browser |
+## Additional advanced modules (latest update)
 
----
-
-## ⚠️ Known Limitations
-
-- It is an academic foundation, **not** certified for real food-safety or logistics use. Always verify safety and expiry for real donations.
-- Demo photos, quantities and listings are illustrative and are not evidence that a donation exists.
-- GPS is a **one-time capture** after the volunteer clicks the button, not live tracking.
-- The area map uses **approximate area-centre coordinates** inferred from address text, with no exact geocoding or road-distance routing.
-- Smart matching uses priority, deadline urgency and area filtering. It is not an AI optimizer.
-- Notifications are **in-app only**; there is no SMS, email or push.
-- No email-based password reset: admins generate a temporary password from the Users page.
-- Certificates are printable HTML pages and are not digitally signed.
-- Banglish typing is a convenience helper, not a full transliteration engine.
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome.
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature`
-3. Run `sh tests/run_checks.sh` before committing
-4. Commit your changes: `git commit -m "Add your feature"`
-5. Push to your branch and open a Pull Request
-
-Please never include real user data, credentials or uploaded documents in commits.
-
----
-
-## 📄 License
-
-No license has been specified yet. Add a `LICENSE` file (for example MIT) to state how others may use this project.
-
----
-
-<div align="center">
-
-**Built to reduce food waste and fight hunger in Bangladesh. 🇧🇩**
-
-</div>
+The latest update adds explainable rule-based smart matching, an emergency broadcast/NGO response centre, environmental impact estimates, donation chain-of-custody history with hash-linked events, an account-scoped CSV report builder, a scoped partner API portal, and an offline-ready PWA shell. Before using these modules, back up the database, import `database/migrate_next_advanced_features.sql` after the existing migrations, and read `docs/NEW_ADVANCED_MODULES_SETUP_BN.md`. The smart matcher is rule-based rather than machine learning; the CO₂e factor is illustrative; external OpenAI/Google Maps/IoT/email adapters are not configured in this archive. Offline task submission/sync is not implemented.

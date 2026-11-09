@@ -1,0 +1,10 @@
+{
+  "name": "FoodRescue Bangladesh",
+  "short_name": "FoodRescue",
+  "description": "Rescue surplus food and connect communities.",
+  "start_url": "./index.php",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f8faf8",
+  "theme_color": "#176b4d"
+}

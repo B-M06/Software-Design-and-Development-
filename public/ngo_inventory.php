@@ -1,0 +1,40 @@
+<?php
+require_once __DIR__ . '/../app/layout.php';
+$u=require_role(['ngo','admin']); $pdo=db(); $errors=[];
+if($_SERVER['REQUEST_METHOD']==='POST'){
+ verify_csrf(); $action=$_POST['action']??'';
+ try {
+  if($action==='receive'){
+   $requestId=(int)($_POST['request_id']??0);
+   $q=$pdo->prepare("SELECT dr.id,dr.requested_by,dr.surplus_food_id,dr.quantity_kg,dr.status,sf.food_name,sf.category FROM donation_requests dr JOIN surplus_food sf ON sf.id=dr.surplus_food_id WHERE dr.id=? AND dr.status IN ('delivered','completed')");
+   $q->execute([$requestId]);$r=$q->fetch();
+   if(!$r || ($u['role']!=='admin' && (int)$r['requested_by']!==(int)$u['id'])) throw new RuntimeException('Only a delivered donation belonging to your NGO can be received into stock.');
+   $pdo->beginTransaction();
+   $key='donation_request:'.$requestId;
+   $check=$pdo->prepare('SELECT id FROM inventory_transactions WHERE idempotency_key=?');$check->execute([$key]);
+   if($check->fetch()) throw new RuntimeException('This donation has already been received into inventory.');
+   $q=$pdo->prepare('SELECT id FROM ngo_inventory WHERE ngo_id=? AND source_surplus_food_id=? FOR UPDATE');$q->execute([$r['requested_by'],$r['surplus_food_id']]);$inv=$q->fetch();
+   if($inv){$inventoryId=(int)$inv['id'];$pdo->prepare('UPDATE ngo_inventory SET current_quantity=current_quantity+? WHERE id=?')->execute([$r['quantity_kg'],$inventoryId]);}
+   else {$pdo->prepare('INSERT INTO ngo_inventory(ngo_id,food_name,category,unit,current_quantity,source_surplus_food_id) VALUES(?,?,?,\'kg\',?,?)')->execute([$r['requested_by'],$r['food_name'],$r['category'],$r['quantity_kg'],$r['surplus_food_id']]);$inventoryId=(int)$pdo->lastInsertId();}
+   $pdo->prepare("INSERT INTO inventory_transactions(inventory_id,transaction_type,quantity,reference_type,reference_id,idempotency_key,notes,created_by) VALUES(?,'received',?,'donation_request',?,?,?,?)")->execute([$inventoryId,$r['quantity_kg'],$requestId,$key,'Received from completed donation #'.$requestId,$u['id']]);
+   $pdo->commit(); flash('Delivered donation added to NGO inventory.'); redirect('ngo_inventory.php');
+  } elseif($action==='distribute'){
+   $inventoryId=(int)($_POST['inventory_id']??0);$qty=(float)($_POST['quantity']??0);$notes=trim($_POST['notes']??'');
+   if($qty<=0) throw new RuntimeException('Quantity must be greater than zero.');
+   $pdo->beginTransaction();$q=$pdo->prepare('SELECT * FROM ngo_inventory WHERE id=?'.($u['role']==='admin'?'':' AND ngo_id=?').' FOR UPDATE');$q->execute($u['role']==='admin'?[$inventoryId]:[$inventoryId,$u['id']]);$inv=$q->fetch();
+   if(!$inv || (float)$inv['current_quantity']<$qty) throw new RuntimeException('Inventory not found or insufficient stock.');
+   $pdo->prepare('UPDATE ngo_inventory SET current_quantity=current_quantity-? WHERE id=?')->execute([$qty,$inventoryId]);
+   $pdo->prepare("INSERT INTO inventory_transactions(inventory_id,transaction_type,quantity,notes,created_by) VALUES(?,'distributed',?,?,?)")->execute([$inventoryId,$qty,$notes,$u['id']]);
+   $pdo->commit();flash('Stock distribution movement recorded.');redirect('ngo_inventory.php');
+  }
+ } catch(Throwable $e){if($pdo->inTransaction())$pdo->rollBack();$errors[]=$e instanceof RuntimeException?$e->getMessage():'Could not update inventory. Check whether the migration has been applied.';}
+}
+if($u['role']==='admin'){$rows=$pdo->query('SELECT i.*,n.name AS ngo_name FROM ngo_inventory i JOIN users n ON n.id=i.ngo_id ORDER BY i.updated_at DESC')->fetchAll();$eligible=$pdo->query("SELECT dr.id,dr.requested_by,dr.quantity_kg,sf.food_name,rec.name AS recipient FROM donation_requests dr JOIN surplus_food sf ON sf.id=dr.surplus_food_id JOIN users rec ON rec.id=dr.requested_by WHERE dr.status IN ('delivered','completed') AND NOT EXISTS(SELECT 1 FROM inventory_transactions t WHERE t.idempotency_key=CONCAT('donation_request:',dr.id)) ORDER BY dr.updated_at DESC")->fetchAll();}
+else{$q=$pdo->prepare('SELECT i.*,n.name AS ngo_name FROM ngo_inventory i JOIN users n ON n.id=i.ngo_id WHERE i.ngo_id=? ORDER BY i.updated_at DESC');$q->execute([$u['id']]);$rows=$q->fetchAll();$q=$pdo->prepare("SELECT dr.id,dr.requested_by,dr.quantity_kg,sf.food_name,rec.name AS recipient FROM donation_requests dr JOIN surplus_food sf ON sf.id=dr.surplus_food_id JOIN users rec ON rec.id=dr.requested_by WHERE dr.requested_by=? AND dr.status IN ('delivered','completed') AND NOT EXISTS(SELECT 1 FROM inventory_transactions t WHERE t.idempotency_key=CONCAT('donation_request:',dr.id)) ORDER BY dr.updated_at DESC");$q->execute([$u['id']]);$eligible=$q->fetchAll();}
+page_header('NGO inventory'); ?>
+<div class="page-intro"><div class="eyebrow">NGO OPERATIONS</div><h1>Inventory <em>management.</em></h1><p>Receive stock from completed donations and record outgoing quantities. Only confirmed deliveries can be received as new stock.</p></div>
+<?php foreach($errors as $err):?><div class="alert error"><?=e($err)?></div><?php endforeach;?>
+<div class="form-panel"><h2>Receive delivered donation</h2><form method="post" class="form-grid"><input type="hidden" name="csrf_token" value="<?=e(csrf_token())?>"><input type="hidden" name="action" value="receive"><label class="full">Eligible completed donation<select name="request_id" required><option value="">Choose donation</option><?php foreach($eligible as $r):?><option value="<?=(int)$r['id']?>">#<?=(int)$r['id']?> · <?=e($r['food_name'])?> · <?=e($r['quantity_kg'])?> kg · <?=e($r['recipient'])?></option><?php endforeach;?></select></label><div class="full"><button class="btn" type="submit">Receive into stock</button></div></form><p class="muted">Each donation can be received once; duplicate requests are blocked.</p></div>
+<div class="section-heading"><div><div class="eyebrow">CURRENT STOCK</div><h2>Available inventory</h2></div></div><div class="table-wrap"><table><thead><tr><?php if($u['role']==='admin'):?><th>NGO</th><?php endif;?><th>Food</th><th>Category</th><th>Current stock</th><th>Last updated</th><th>Record distribution</th></tr></thead><tbody><?php foreach($rows as $r):?><tr><?php if($u['role']==='admin'):?><td><?=e($r['ngo_name'])?></td><?php endif;?><td><?=e($r['food_name'])?></td><td><?=e($r['category'])?></td><td><strong><?=e((string)$r['current_quantity'])?> <?=e($r['unit'])?></strong></td><td><?=e($r['updated_at'])?></td><td><form method="post" class="inline-actions"><input type="hidden" name="csrf_token" value="<?=e(csrf_token())?>"><input type="hidden" name="action" value="distribute"><input type="hidden" name="inventory_id" value="<?=(int)$r['id']?>"><input type="number" min="0.01" step="0.01" max="<?=e((string)$r['current_quantity'])?>" name="quantity" required placeholder="Qty" style="width:90px"><input type="text" name="notes" maxlength="500" placeholder="Notes (optional)" style="width:150px"><button class="btn btn-sm" type="submit">Deduct</button></form></td></tr><?php endforeach;?><?php if(!$rows):?><tr><td colspan="6" class="table-empty">No inventory yet. Receive a completed donation above.</td></tr><?php endif;?></tbody></table></div>
+<div class="section-heading"><div><div class="eyebrow">AUDIT TRAIL</div><h2>Recent stock movements</h2></div></div><?php $sql="SELECT t.*,i.food_name,u.name AS actor FROM inventory_transactions t JOIN ngo_inventory i ON i.id=t.inventory_id JOIN users u ON u.id=t.created_by".($u['role']==='admin'?'':' WHERE i.ngo_id=?')." ORDER BY t.created_at DESC LIMIT 100";$q=$pdo->prepare($sql);$q->execute($u['role']==='admin'?[]:[$u['id']]);$tx=$q->fetchAll();?><div class="table-wrap"><table><thead><tr><th>Date</th><th>Food</th><th>Movement</th><th>Quantity</th><th>Actor</th><th>Notes</th></tr></thead><tbody><?php foreach($tx as $t):?><tr><td><?=e($t['created_at'])?></td><td><?=e($t['food_name'])?></td><td><?=e($t['transaction_type'])?></td><td><?=e((string)$t['quantity'])?></td><td><?=e($t['actor'])?></td><td><?=e($t['notes']??'')?></td></tr><?php endforeach;?><?php if(!$tx):?><tr><td colspan="6" class="table-empty">No stock movement records.</td></tr><?php endif;?></tbody></table></div>
+<?php page_footer(); ?>

@@ -1,0 +1,38 @@
+FoodRescue Bangladesh — সহজে চালানোর নিয়ম
+==========================================
+
+1) XAMPP Control Panel থেকে Apache এবং MySQL Start করুন।
+2) phpMyAdmin খুলুন: http://localhost/phpmyadmin/
+3) আপনার foodrescue_bd database এবং table আগে থেকেই থাকলে আবার schema/migration import করবেন না।
+   Database একদম নতুন হলে database/schema.sql একবার import করুন; README.md-তে প্রয়োজনীয় migration-এর ক্রম দেখুন।
+4) XAMPP Shell খুলুন। এই project folder-এ যান, উদাহরণ:
+   cd /d C:\xampp\htdocs\FoodRescue_Bangladesh_SCREENSHOT_MATCH\FoodRescue_Bangladesh
+5) Demo login ও sample food data যোগ করতে একবার চালান:
+   C:\xampp\php\php.exe scripts\seed_demo.php
+6) সফল হলে login page refresh করুন। Login page-এর “Local demo accounts” অংশে email দেখা যাবে।
+
+সব demo account-এর password: Demo@12345
+
+Demo email:
+Admin: admin@foodrescue.local
+Restaurant: restaurant@foodrescue.local
+Event Organizer: event@foodrescue.local
+NGO: ngo@foodrescue.local
+Demand Reporter: reporter@foodrescue.local
+Volunteer: volunteer@foodrescue.local
+
+Website URL (folder name আপনারটা অনুযায়ী বদলাবেন):
+http://localhost/FoodRescue_Bangladesh_SCREENSHOT_MATCH/FoodRescue_Bangladesh/public/
+
+গুরুত্বপূর্ণ:
+- scripts/seed_demo.php শুধু command line/XAMPP Shell থেকে চালাবেন; browser দিয়ে চালানো যাবে না।
+- Demo food data কেবল project demo/testing-এর জন্য; এগুলো বাস্তব donation নয়।
+- Demo password public/production server-এ ব্যবহার করবেন না।
+- Map area-level approximate location দেখায়; exact GPS/road distance নয়।
+- এই ZIP-এ PHP syntax check করা হয়েছে। এই environment-এ MySQL PDO driver না থাকায় database-backed login/search run করে পরীক্ষা করা যায়নি।
+
+নতুন ৬টি Advanced module:
+NGO Inventory, Food Waste Analytics, Emergency Relief Campaigns, Donor-NGO Feedback, GPS Route Planner এবং Beneficiary Needs Management।
+প্রথমে foodrescue_bd database backup নিন, তারপর database/migrate_six_new_modules.sql একবার চালান। বিস্তারিত বাংলা setup ও testing guide: docs/SIX_ADVANCED_MODULES_SETUP_BN.md
+
+নতুন advanced module-এর জন্য database/migrate_next_advanced_features.sql import করুন (আগে backup নিন)। বিস্তারিত: docs/NEW_ADVANCED_MODULES_SETUP_BN.md। এই update-এ Smart Matching, Emergency Center, Environmental Impact, Donation Journey, Report Builder, Partner API এবং PWA shell যোগ হয়েছে।

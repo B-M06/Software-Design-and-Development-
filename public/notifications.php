@@ -1,0 +1,10 @@
+<?php
+require_once __DIR__ . '/../app/layout.php';
+$u=require_login(); $pdo=db();
+if($_SERVER['REQUEST_METHOD']==='POST') { verify_csrf(); $id=(int)($_POST['notification_id']??0); if($id===0){$q=$pdo->prepare('UPDATE notifications SET is_read=1 WHERE user_id=?');$q->execute([$u['id']]);} else {$q=$pdo->prepare('UPDATE notifications SET is_read=1 WHERE id=? AND user_id=?');$q->execute([$id,$u['id']]);} flash('Notifications marked as read.','success'); redirect('notifications.php'); }
+$q=$pdo->prepare('SELECT * FROM notifications WHERE user_id=? ORDER BY created_at DESC LIMIT 100');$q->execute([$u['id']]);$items=$q->fetchAll();
+page_header('Notifications'); ?>
+<div class="page-intro"><div class="eyebrow">UPDATES</div><h1>Your <em>notifications.</em></h1><p>Important account and rescue-workflow updates appear here.</p></div>
+<form method="post" class="section-tight"><input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>"><button class="btn btn-light btn-sm" type="submit" name="notification_id" value="0">Mark all as read</button></form>
+<div class="delivery-list"><?php foreach($items as $n): ?><article class="delivery-card"><div class="delivery-top"><div><h3><?= e($n['title']) ?> <?= !$n['is_read']?'<span class="badge warn">New</span>':'' ?></h3><p><?= nl2br(e($n['message'])) ?></p><small><?= e(date('d M Y, g:i A',strtotime($n['created_at']))) ?></small></div><?php if(!$n['is_read']): ?><form method="post"><input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>"><button class="btn btn-sm" name="notification_id" value="<?= (int)$n['id'] ?>">Mark read</button></form><?php endif; ?></div></article><?php endforeach; if(!$items): ?><div class="empty-state"><div>✉</div><h3>You're all caught up</h3><p>No notifications yet.</p></div><?php endif; ?></div>
+<?php page_footer(); ?>
