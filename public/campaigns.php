@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/layout.php';$u=require_login();$pdo=db();$errors=[];
+require_once __DIR__ . '/../database/app/layout.php';$u=require_login();$pdo=db();$errors=[];
 if($_SERVER['REQUEST_METHOD']==='POST'){
  verify_csrf();$action=$_POST['action']??'';
  try{

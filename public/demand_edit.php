@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/layout.php';
+require_once __DIR__ . '/../database/app/layout.php';
 $u = require_role(['ngo', 'demand_reporter']);
 $pdo = db();
 $id = (int)($_GET['id'] ?? $_POST['demand_id'] ?? 0);

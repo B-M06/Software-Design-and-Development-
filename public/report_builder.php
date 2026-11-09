@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/layout.php';
+require_once __DIR__ . '/../database/app/layout.php';
 $u=require_role(['admin','restaurant','event_organizer','ngo','demand_reporter']);$pdo=db();
 $start=trim((string)($_GET['start']??date('Y-m-01')));$end=trim((string)($_GET['end']??date('Y-m-d')));$format=(string)($_GET['format']??'view');
 if(!preg_match('/^\d{4}-\d{2}-\d{2}$/',$start)||!preg_match('/^\d{4}-\d{2}-\d{2}$/',$end)||$start>$end){http_response_code(400);exit('Invalid date range.');}

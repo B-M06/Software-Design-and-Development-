@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/layout.php';$u=require_role(['admin','ngo','demand_reporter','restaurant','event_organizer']);$pdo=db();
+require_once __DIR__ . '/../database/app/layout.php';$u=require_role(['admin','ngo','demand_reporter','restaurant','event_organizer']);$pdo=db();
 $from=$_GET['from']??date('Y-m-01');$to=$_GET['to']??date('Y-m-d');
 if(!preg_match('/^\d{4}-\d{2}-\d{2}$/',$from))$from=date('Y-m-01');if(!preg_match('/^\d{4}-\d{2}-\d{2}$/',$to))$to=date('Y-m-d');
 $params=[$from.' 00:00:00',$to.' 23:59:59'];$where='sf.created_at BETWEEN ? AND ?';

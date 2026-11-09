@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 /** Run with: php tests/check_environment.php (from project root). */
-require_once __DIR__ . '/../app/db.php';
+require_once __DIR__ . '/../database/app/db.php';
 
 $failures = [];
 $requiredTables = [

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/layout.php';
+require_once __DIR__ . '/../database/app/layout.php';
 $u=require_login(); $pdo=db();
 $role=$u['role'];
 $counts=['food'=>0,'requests'=>0,'demand'=>0,'deliveries'=>0,'users'=>0];

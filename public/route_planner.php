@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/layout.php';$u=require_role(['volunteer','admin']);$pdo=db();$errors=[];
+require_once __DIR__ . '/../database/app/layout.php';$u=require_role(['volunteer','admin']);$pdo=db();$errors=[];
 function route_distance_km(float $a,float $b,float $c,float $d):float{$r=6371.0;$p1=deg2rad($a);$p2=deg2rad($c);$dp=deg2rad($c-$a);$dl=deg2rad($d-$b);$x=sin($dp/2)**2+cos($p1)*cos($p2)*sin($dl/2)**2;return 2*$r*asin(min(1,sqrt($x)));}
 if($_SERVER['REQUEST_METHOD']==='POST'){
  verify_csrf();try{$action=$_POST['action']??'';

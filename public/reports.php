@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/layout.php';
+require_once __DIR__ . '/../database/app/layout.php';
 $u=require_role(['admin','restaurant','event_organizer','ngo','demand_reporter','volunteer']);$pdo=db();
 $stats=['kg'=>0,'donations'=>0,'meals'=>0,'areas'=>0];
 try{

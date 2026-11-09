@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/layout.php';
+require_once __DIR__ . '/../database/app/layout.php';
 $token=preg_replace('/[^a-f0-9]/i','',(string)($_GET['t']??''));
 $q=db()->prepare("SELECT sf.id,sf.food_name,sf.category,sf.quantity_kg,sf.status,sf.safety_deadline,sf.storage_condition,sf.storage_method,sf.allergens,sf.cooked_time,u.name AS donor,sc.result AS safety_result,sc.checked_at,sc.reviewer_notes FROM surplus_food sf JOIN users u ON u.id=sf.restaurant_id LEFT JOIN food_safety_checks sc ON sc.surplus_food_id=sf.id WHERE sf.batch_token=? ORDER BY sc.created_at DESC LIMIT 1");
 $q->execute([$token]);$f=$token!==''?$q->fetch():false; page_header('Food batch tracking');

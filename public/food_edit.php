@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/layout.php';
+require_once __DIR__ . '/../database/app/layout.php';
 $u = require_role(['restaurant', 'event_organizer']);
 $pdo = db();
 $id = (int)($_GET['id'] ?? $_POST['food_id'] ?? 0);

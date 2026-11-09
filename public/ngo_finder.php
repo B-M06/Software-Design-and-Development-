@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/layout.php';
+require_once __DIR__ . '/../database/app/layout.php';
 $u=current_user(); $pdo=db();
 $hasLocation=false;
 try {$q=$pdo->query("SELECT id,name,role,address,latitude,longitude FROM users WHERE role IN ('ngo','restaurant','event_organizer') AND verification_status='verified' AND is_active=1 AND latitude IS NOT NULL AND longitude IS NOT NULL ORDER BY name");$orgs=$q->fetchAll();$hasLocation=true;}

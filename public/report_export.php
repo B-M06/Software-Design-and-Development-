@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/helpers.php';
+require_once __DIR__ . '/../database/app/helpers.php';
 $u=require_role(['admin','restaurant','event_organizer','ngo','demand_reporter','volunteer']);
 $pdo=db();
 $sql="SELECT dr.id AS request_id,sf.food_name,sf.quantity_kg,sf.status AS food_status,dr.status AS donation_status,rest.name AS restaurant,recipient.name AS recipient,d.status AS delivery_status,v.name AS volunteer,COALESCE(SUM(dist.meals_distributed),0) AS meals_distributed,COALESCE(SUM(dist.beneficiary_count),0) AS beneficiaries,dr.created_at FROM donation_requests dr JOIN surplus_food sf ON sf.id=dr.surplus_food_id JOIN users rest ON rest.id=sf.restaurant_id JOIN users recipient ON recipient.id=dr.requested_by LEFT JOIN deliveries d ON d.donation_request_id=dr.id LEFT JOIN users v ON v.id=d.volunteer_id LEFT JOIN distributions dist ON dist.donation_request_id=dr.id";

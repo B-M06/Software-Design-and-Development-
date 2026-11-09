@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/layout.php';
+require_once __DIR__ . '/../database/app/layout.php';
 $u=require_role(['admin']); $pdo=db();
 // Transparent baseline forecast: recent 28-day validated demand, grouped by area. Not an ML model.
 $sql="SELECT COALESCE(NULLIF(upazila,''),area) AS area, SUM(required_meals) AS meals, COUNT(*) AS reports, AVG(people_count) AS avg_people FROM demand_requests WHERE created_at >= DATE_SUB(NOW(), INTERVAL 28 DAY) AND status IN ('validated','partially_fulfilled','fulfilled') GROUP BY COALESCE(NULLIF(upazila,''),area) ORDER BY meals DESC LIMIT 30";

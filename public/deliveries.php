@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/layout.php';
+require_once __DIR__ . '/../database/app/layout.php';
 $u=require_role(['volunteer','ngo','admin']);$pdo=db();
 if ($_SERVER['REQUEST_METHOD']==='POST') {
  verify_csrf();$id=(int)($_POST['delivery_id']??0);$status=$_POST['status']??'';$gpsLat=trim($_POST['gps_lat']??'');$gpsLng=trim($_POST['gps_lng']??'');

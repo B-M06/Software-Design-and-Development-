@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/layout.php';
+require_once __DIR__ . '/../database/app/layout.php';
 $u=require_role(['admin']);$pdo=db();
 if($_SERVER['REQUEST_METHOD']==='POST'){
  verify_csrf();$id=(int)($_POST['user_id']??0);$action=$_POST['action']??'';$reason=trim($_POST['reason']??'');

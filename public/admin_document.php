@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/helpers.php';
+require_once __DIR__ . '/../database/app/helpers.php';
 require_role(['admin']);
 $id = (int)($_GET['id'] ?? 0);
 $q = db()->prepare('SELECT verification_document FROM users WHERE id=?');

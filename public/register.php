@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/layout.php';
+require_once __DIR__ . '/../database/app/layout.php';
 if (current_user()) redirect('dashboard.php');
 $errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

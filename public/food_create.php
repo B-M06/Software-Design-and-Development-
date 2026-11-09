@@ -2,7 +2,7 @@
 <?php
 date_default_timezone_set('Asia/Dhaka');
 
-require_once __DIR__ . '/../app/layout.php';
+require_once __DIR__ . '/../database/app/layout.php';
 
 $u = require_role(['restaurant', 'event_organizer', 'admin']);
 $errors = [];

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/layout.php';
+require_once __DIR__ . '/../database/app/layout.php';
 $u=require_role(['ngo','restaurant','event_organizer','admin']);
 $id=(int)($_GET['id']??0); $pdo=db();
 $sql="SELECT dr.id,dr.quantity_kg,dr.status,dr.updated_at,sf.food_name,rest.name AS donor,ngo.name AS ngo_name FROM donation_requests dr JOIN surplus_food sf ON sf.id=dr.surplus_food_id JOIN users rest ON rest.id=sf.restaurant_id JOIN users ngo ON ngo.id=dr.requested_by WHERE dr.id=? AND dr.status IN ('delivered','completed')";

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/layout.php';
+require_once __DIR__ . '/../database/app/layout.php';
 $u=require_role(['ngo','demand_reporter','admin']); $pdo=db();
 if ($u['role']==='admin') {
  $q=$pdo->query("SELECT d.*,u.name AS reporter FROM demand_requests d JOIN users u ON u.id=d.created_by ORDER BY FIELD(d.status,'pending','validated','partially_fulfilled','fulfilled','rejected','cancelled'), FIELD(d.urgency,'critical','high','normal','low'),d.needed_by ASC");

@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-require_once __DIR__ . '/../../../app/helpers.php';
+require_once __DIR__ . '/../../../database/app/helpers.php';
 header('Content-Type: application/json; charset=utf-8');header('Cache-Control: no-store');
 function api_error(int $code,string $message): never { http_response_code($code); echo json_encode(['error'=>$message],JSON_UNESCAPED_UNICODE); exit; }
 if($_SERVER['REQUEST_METHOD']!=='GET')api_error(405,'method_not_allowed');

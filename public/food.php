@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/layout.php';
+require_once __DIR__ . '/../database/app/layout.php';
 $u=current_user(); $pdo=db();
 $term=trim($_GET['q']??''); $area=trim($_GET['area']??'');
 $sql="SELECT sf.*,u.name AS donor_name,u.address AS donor_address FROM surplus_food sf JOIN users u ON u.id=sf.restaurant_id WHERE sf.status='available' AND sf.safety_deadline>NOW() AND EXISTS (SELECT 1 FROM food_safety_checks fsc WHERE fsc.surplus_food_id=sf.id AND fsc.result='safe')";

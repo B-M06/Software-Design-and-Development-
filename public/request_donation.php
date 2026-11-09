@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/helpers.php';
+require_once __DIR__ . '/../database/app/helpers.php';
 $u=require_role(['ngo','demand_reporter']);
 if ($_SERVER['REQUEST_METHOD']!=='POST') redirect('food.php');
 verify_csrf();

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/layout.php';
+require_once __DIR__ . '/../database/app/layout.php';
 page_header('FoodRescue Bangladesh');
 $pdo = db();
 $liveFoods = [];

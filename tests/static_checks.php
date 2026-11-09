@@ -2,7 +2,7 @@
 declare(strict_types=1);
 /** Database-independent source checks: php tests/static_checks.php */
 $root = dirname(__DIR__);
-require_once $root . '/app/helpers.php';
+require_once $root . '/database/app/helpers.php';
 $checks = [
     'Distribution transaction locks request' => ['public/distribution.php', 'FOR UPDATE'],
     'Distribution duplicate prevention' => ['public/distribution.php', 'A distribution record already exists'],
@@ -18,9 +18,9 @@ $checks = [
     'NGO dashboard filters to verified demand' => ['public/demand.php', "status IN ('validated','partially_fulfilled','fulfilled')"],
     'Logout requires CSRF' => ['public/logout.php', 'verify_csrf();'],
     'Login is rate limited' => ['public/login.php', 'login_throttled'],
-    'Session user re-validated each request' => ['app/helpers.php', 'Re-read the account every request'],
-    'Session validation fails closed on DB error' => ['app/helpers.php', 'Never trust a stale session'],
-    'Login throttling fails closed' => ['app/helpers.php', 'Login throttling: 5 failed attempts'],
+    'Session user re-validated each request' => ['database/app/helpers.php', 'Re-read the account every request'],
+    'Session validation fails closed on DB error' => ['database/app/helpers.php', 'Never trust a stale session'],
+    'Login throttling fails closed' => ['database/app/helpers.php', 'Login throttling: 5 failed attempts'],
     'Complaints can be submitted' => ['public/complaints.php', 'INSERT INTO complaints'],
     'Admin can review complaints' => ['public/complaints.php', 'complaint_'],
     'Password change available' => ['public/profile.php', 'password_verify($current'],
@@ -41,10 +41,10 @@ $checks = [
     'Demand edit limited to pending reports' => ['public/demand_edit.php', "status='pending'"],
     'Demand cancel available' => ['public/my_demand.php', "status='cancelled'"],
     'Donor can cancel own listing' => ['public/my_food.php', "status='cancelled'"],
-    'Unicode length fallback available without mbstring' => ['app/helpers.php', 'function text_length(string $value): int'],
+    'Unicode length fallback available without mbstring' => ['database/app/helpers.php', 'function text_length(string $value): int'],
     'Banglish typing helper included' => ['public/assets/app.js', 'foodrescue-banglish-enabled'],
-    'Banglish typing toggle present' => ['app/layout.php', 'id="banglishToggle"'],
-    'Database uses utf8mb4 connection charset' => ['app/db.php', 'charset=utf8mb4'],
+    'Banglish typing toggle present' => ['database/app/layout.php', 'id="banglishToggle"'],
+    'Database uses utf8mb4 connection charset' => ['database/app/db.php', 'charset=utf8mb4'],
     'Baseline browser security headers configured' => ['config/config.php', "X-Content-Type-Options: nosniff"],
     'Banglish toggle handles disabled localStorage' => ['public/assets/app.js', 'Storage can be disabled'],
     'Inventory receives completed donations only' => ['public/ngo_inventory.php', "dr.status IN ('delivered','completed')"],
@@ -59,7 +59,7 @@ $checks = [
     'Emergency broadcasts expire' => ['public/emergency_center.php', 'expires_at>NOW()'],
     'Emergency responses are CSRF protected' => ['public/emergency_center.php', 'verify_csrf();'],
     'Impact estimate documents illustrative factor' => ['public/environmental_impact.php', 'illustrative placeholder'],
-    'Chain of custody records hashes' => ['app/helpers.php', 'hash(\'sha256\', $canonical)'],
+    'Chain of custody records hashes' => ['database/app/helpers.php', 'hash(\'sha256\', $canonical)'],
     'Partner API rate limited' => ['public/api/v1/impact.php', 'rate_limit_exceeded'],
     'Partner API requires bearer token' => ['public/api/v1/donations.php', 'HTTP_AUTHORIZATION'],
     'Report builder scopes records to account' => ['public/report_builder.php', '$where.=\' AND dr.requested_by=?\''],

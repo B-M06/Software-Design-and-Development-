@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/layout.php';
+require_once __DIR__ . '/../database/app/layout.php';
 $u = require_role(['ngo','demand_reporter','admin']);
 $pdo = db();
 $foods = $pdo->query("SELECT sf.id,sf.food_name,sf.category,sf.quantity_kg,sf.safety_deadline,sf.pickup_address,sf.priority_score,donor.address AS donor_address,donor.name AS donor_name FROM surplus_food sf JOIN users donor ON donor.id=sf.restaurant_id WHERE sf.status='available' AND sf.safety_deadline>NOW() AND EXISTS (SELECT 1 FROM food_safety_checks sc WHERE sc.surplus_food_id=sf.id AND sc.result='safe') ORDER BY sf.safety_deadline ASC LIMIT 200")->fetchAll();

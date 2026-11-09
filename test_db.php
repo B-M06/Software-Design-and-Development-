@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/config/config.php';
-require_once __DIR__ . '/app/db.php';
+require_once __DIR__ . '/database/app/db.php';
 
 try {
     $pdo = db();

@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/layout.php';
+require_once __DIR__ . '/../database/app/layout.php';
 $u=require_login(); $pdo=db();
 if($_SERVER['REQUEST_METHOD']==='POST') { verify_csrf(); $id=(int)($_POST['notification_id']??0); if($id===0){$q=$pdo->prepare('UPDATE notifications SET is_read=1 WHERE user_id=?');$q->execute([$u['id']]);} else {$q=$pdo->prepare('UPDATE notifications SET is_read=1 WHERE id=? AND user_id=?');$q->execute([$id,$u['id']]);} flash('Notifications marked as read.','success'); redirect('notifications.php'); }
 $q=$pdo->prepare('SELECT * FROM notifications WHERE user_id=? ORDER BY created_at DESC LIMIT 100');$q->execute([$u['id']]);$items=$q->fetchAll();

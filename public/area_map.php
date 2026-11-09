@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/layout.php';
+require_once __DIR__ . '/../database/app/layout.php';
 $u=current_user(); $pdo=db();
 $areas=[
  'Mirpur'=>[23.8067,90.3686], 'Uttara'=>[23.8759,90.3795], 'Dhanmondi'=>[23.7461,90.3742],

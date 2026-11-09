@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../app/layout.php';
+require_once __DIR__ . '/../database/app/layout.php';
 $pdo=db();
 $sql="SELECT u.id,u.name,u.role,COUNT(DISTINCT dr.id) AS completed_donations,COALESCE(SUM(CASE WHEN dr.status IN ('delivered','completed') THEN dr.quantity_kg ELSE 0 END),0) AS rescued_kg FROM users u LEFT JOIN surplus_food sf ON sf.restaurant_id=u.id LEFT JOIN donation_requests dr ON dr.surplus_food_id=sf.id AND dr.status IN ('delivered','completed') WHERE u.role IN ('restaurant','event_organizer') AND u.verification_status='verified' AND u.is_active=1 GROUP BY u.id,u.name,u.role HAVING completed_donations>0 ORDER BY rescued_kg DESC,completed_donations DESC LIMIT 50";
 $rows=$pdo->query($sql)->fetchAll();
