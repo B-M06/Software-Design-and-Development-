@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  php-syntax-check:
+  php-tests:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,7 +21,7 @@ jobs:
 
       - name: Check PHP syntax
         run: |
-          find . -type f -name "*.php" \
-            -not -path "./vendor/*" -print0 |
-            xargs -0 -n1 php -l
+          find . -type f -name "*.php" -not -path "./vendor/*" -print0 | xargs -0 -n1 php -l
 
+      - name: Run database-independent checks
+        run: php tests/static_checks.php
