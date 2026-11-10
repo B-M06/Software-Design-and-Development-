@@ -17,3 +17,10 @@ private_docs/
 !.env.example
 private_docs/
 *.log
+
+# Testing and coverage artifacts
+/vendor/
+/.phpunit.cache/
+/coverage/
+/build/
+/phpinfo.txt
